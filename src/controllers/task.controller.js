@@ -32,7 +32,7 @@ const getAllTasks = asyncHandler(async (req, res) => {
     return res.status(200)
     .json(
         new ApiResponse(
-            201, 'Tasks fetched successfully',
+            200, 'Tasks fetched successfully',
             tasks
         )
     )
@@ -46,7 +46,7 @@ const getTaskByID = asyncHandler(async(req, res) => {
 
     const task = await Task.findById(taskId)
     if (!task) {
-        throw new apiError(404, 'Task not found')
+        throw new ApiError(404, 'Task not found')
     }
     return res.status(200)
     .json(
@@ -57,4 +57,76 @@ const getTaskByID = asyncHandler(async(req, res) => {
     )
 })
 
-export {createTask, getAllTasks, getTaskByID}
+const isCompleteTask = asyncHandler(async(req, res) => {
+    const {taskId} = req.params;
+    if (!isValidObjectId(taskId)) {
+        throw new ApiError(400, 'Invalid task ID')
+    }
+    const task = await Task.findById(taskId);
+    if (!task) {
+        throw new ApiError(404, 'Task not found')
+    }
+
+    task.isCompleted = !task.isCompleted;
+    await task.save();
+
+    return res.status(200)
+    .json(
+        new ApiResponse(
+            200, 'Task status updated successfully',
+            task
+        )
+    )
+
+})
+
+const updateTask = asyncHandler(async(req, res) => {
+    const {taskId} = req.params;
+    const {title, description} = req.body;
+
+    if (!isValidObjectId(taskId)) {
+        throw new ApiError(400, 'Invalid task ID')
+    }
+    const task = await Task.findById(taskId);
+    if (!task) {
+        throw new ApiError(404, 'Task not found')
+    }
+    const updatedTask = await Task.findByIdAndUpdate(
+        taskId,
+        {
+            $set: {
+                title: title || task.title,
+                description: description ||  task.description
+            }
+        },
+        {new: true}
+    )
+    return res.status(200)
+    .json(
+        new ApiResponse(
+            200, 'Task updated successfully',
+            updatedTask
+        )
+    )
+        
+})
+
+const deleteTask = asyncHandler(async(req, res) => {
+    const {taskId} = req.params;
+    if (!isValidObjectId(taskId)) {
+        throw new ApiError(400, 'Invalid task ID')
+    }
+    const task = await Task.findByIdAndDelete(taskId);
+    if (!task) {
+        throw new ApiError(404, 'Task not found')
+    }
+    return res.status(200)
+    .json(
+        new ApiResponse(
+            200, 'Task deleted successfully',
+            []
+        )
+    )
+})
+
+export {createTask, getAllTasks, getTaskByID, isCompleteTask, updateTask, deleteTask}

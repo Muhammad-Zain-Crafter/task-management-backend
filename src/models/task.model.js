@@ -10,7 +10,7 @@ const taskSchema = new Schema({
         type: String,
         trim: true
     },
-    completed: {
+    isCompleted: {
         type: Boolean,
         default: false
     }
