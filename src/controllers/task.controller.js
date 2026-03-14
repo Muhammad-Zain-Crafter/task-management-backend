@@ -1,7 +1,7 @@
 import { isValidObjectId } from 'mongoose';
 import Task from '../models/task.model.js';
 import { ApiError } from '../utils/apiError.js';
-import { ApiResponse } from '../utils/apiResponse.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 const createTask = asyncHandler(async (req, res) => {
